@@ -181,6 +181,11 @@ public class PerformanceTest extends DistributionTest {
     }
 
     @Input
+    public long getPoisonPill() {
+        return System.currentTimeMillis();
+    }
+
+    @Input
     public String getDatabaseUrl() {
         return databaseParameters.get("org.gradle.performance.db.url");
     }
