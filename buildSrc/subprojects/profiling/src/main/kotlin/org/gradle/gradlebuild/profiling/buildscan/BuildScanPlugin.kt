@@ -38,6 +38,7 @@ import kotlin.collections.component2
 import kotlin.collections.filter
 import kotlin.collections.forEach
 import org.gradle.kotlin.dsl.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 const val serverUrl = "https://e.grdev.net"
@@ -56,6 +57,9 @@ open class BuildScanPlugin : Plugin<Project> {
 
     private
     lateinit var buildScan: BuildScanExtension
+
+    private
+    val cacheMissTagged = AtomicBoolean(false)
 
     override fun apply(project: Project): Unit = project.run {
         apply(plugin = "com.gradle.build-scan")
@@ -76,7 +80,7 @@ open class BuildScanPlugin : Plugin<Project> {
     private
     fun Project.monitorUnexpectedCacheMisses() {
         gradle.taskGraph.afterTask {
-            if (!state.skipped && !isExcludedBuild() && this.isMonitoredForCacheMiss()) {
+            if (!state.skipped && !isExcludedBuild() && this.isMonitoredForCacheMiss() && cacheMissTagged.compareAndSet(false, true)) {
                 buildScan.tag("CACHE_MISS")
             }
         }
