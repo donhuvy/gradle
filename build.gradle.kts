@@ -50,10 +50,17 @@ distributedBuild {
         val linuxJava8   = buildEnvironment("Linux amd64", "OpenJDK 8")
         val windowsJava8 = buildEnvironment("Windows 7 amd64", "Oracle JDK 8")
 
-        val compileAll =   buildType("compileAllBuild", "compileAll", splitBySubproject = false, environmentSpecific = false)
-        val sanityCheck =  buildType("sanityCheck", listOf(":allIncubationReportsZip"),
-            splitBySubproject = false, environmentSpecific = false)// ":architectureTest:test" ":distributions:checkBinaryCompatibility", "codeQuality", ":docs:checkstyleApi", ":docs:check", ":docs:javadocAll"
-        val quickTest =    buildType("quickTest", listOf("integTest", "crossVersionTest")) {
+        val compileAll = buildType("compileAllBuild", "compileAll",
+            splitBySubproject = false, environmentSpecific = false)
+
+        val sanityCheck = buildType("sanityCheck", listOf(":docs:checkstyleApi", ":allIncubationReportsZip",
+            ":distributions:checkBinaryCompatibility", "codeQuality", ":docs:check", ":docs:javadocAll",
+            ":architectureTest:test", ":toolingApi:toolingApiShadedJar"),
+            splitBySubproject = false, environmentSpecific = false)
+
+        val quickTest = buildType("quickTest", listOf("test", "integTest", "crossVersionTest")) {
+            exclude("architectureTest")
+            exclude("docs")
             exclude("distributions")
             exclude("soak")
         }

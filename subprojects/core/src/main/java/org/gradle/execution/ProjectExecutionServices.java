@@ -61,7 +61,6 @@ import org.gradle.internal.execution.OutputChangeListener;
 import org.gradle.internal.execution.WorkExecutor;
 import org.gradle.internal.execution.history.ExecutionHistoryStore;
 import org.gradle.internal.execution.history.OutputFilesRepository;
-import org.gradle.internal.execution.impl.DefaultCachePopulatorRegistry;
 import org.gradle.internal.execution.impl.steps.UpToDateResult;
 import org.gradle.internal.file.PathToFileResolver;
 import org.gradle.internal.file.RelativeFilePathResolver;
