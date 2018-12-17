@@ -16,21 +16,8 @@
 
 package org.gradle.gradlebuild.test.integrationtests
 
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Internal
 
 
 @CacheableTask
-open class EnvSpecificIntegrationTest : IntegrationTest(true) {
-
-    @Internal // different for different JVMs
-    override fun getClasspath(): FileCollection {
-        return super.getClasspath()
-    }
-
-    @Internal // differs between Linux and Windows
-    override fun getJvmArgs(): MutableList<String> {
-        return super.getJvmArgs()
-    }
-}
+open class EnvNeutralIntegrationTest : IntegrationTest()

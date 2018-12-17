@@ -53,7 +53,10 @@ distributedBuild {
         val compileAll =   buildType("compileAllBuild", "compileAll", splitBySubproject = false, environmentSpecific = false)
         val sanityCheck =  buildType("sanityCheck", listOf(":allIncubationReportsZip"),
             splitBySubproject = false, environmentSpecific = false)// ":architectureTest:test" ":distributions:checkBinaryCompatibility", "codeQuality", ":docs:checkstyleApi", ":docs:check", ":docs:javadocAll"
-        val quickTest =    buildType("quickTest", listOf("integTest", "crossVersionTest"))
+        val quickTest =    buildType("quickTest", listOf("integTest", "crossVersionTest")) {
+            exclude("distributions")
+            exclude("soak")
+        }
 
         pipeline {
             stage("Compile", "Compile all code as preparation for everything else") {
