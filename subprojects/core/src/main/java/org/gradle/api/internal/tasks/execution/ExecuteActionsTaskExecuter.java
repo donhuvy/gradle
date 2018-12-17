@@ -228,7 +228,7 @@ public class ExecuteActionsTaskExecuter implements TaskExecuter {
                             if (cachePopulatorRegistry.executePopulator(task)) { //blocks until population is finished
                                 loadResult = loader.apply(context.getBuildCacheKey());
                                 if (loadResult == null) {
-                                    throw new RuntimeException("Populated cache expected");
+                                    LOGGER.error("WARNING: Populated cache expected");
                                 }
                             }
                         }
