@@ -61,7 +61,7 @@ class ObjectExtensionServiceInjectionIntegrationTest extends AbstractIntegration
         expect:
         fails()
         failure.assertHasCause("Could not create an instance of type Thing.")
-        failure.assertHasCause("Unable to determine constructor argument #2: missing parameter of class java.lang.String, or no service of class java.lang.String")
+        failure.assertHasCause("Unable to determine constructor argument #2: missing parameter of class java.lang.String, or no service of type class java.lang.String")
     }
 
     def "fails when mismatched construction parameters provided"() {
