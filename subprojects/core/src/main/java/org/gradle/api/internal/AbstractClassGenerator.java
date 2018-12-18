@@ -94,15 +94,11 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 
         int modifiers = type.getModifiers();
         if (Modifier.isPrivate(modifiers)) {
-            throw new ClassGenerationException(String.format("Cannot create a proxy class for private class '%s'.",
-                    type.getSimpleName()));
-        }
-        if (Modifier.isAbstract(modifiers)) {
-            throw new ClassGenerationException(String.format("Cannot create a proxy class for abstract class '%s'.",
+            throw new ClassGenerationException(String.format("Cannot create a decorated class for private class '%s'.",
                     type.getSimpleName()));
         }
         if (Modifier.isFinal(modifiers)) {
-            throw new ClassGenerationException(String.format("Cannot create a proxy class for final class '%s'.",
+            throw new ClassGenerationException(String.format("Cannot create a decorated class for final class '%s'.",
                 type.getSimpleName()));
         }
         Class<? extends T> subclass;
@@ -220,7 +216,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 
             subclass = builder.generate();
         } catch (Throwable e) {
-            throw new ClassGenerationException(String.format("Could not generate a proxy class for class %s.", type.getName()), e);
+            throw new ClassGenerationException(String.format("Could not generate a decorated class for class %s.", type.getName()), e);
         }
 
         cache.put(type, subclass);
@@ -297,21 +293,36 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
                     throw new UnsupportedOperationException(String.format("Cannot attach @Inject to method %s.%s() as it is static.", method.getDeclaringClass().getSimpleName(), method.getName()));
                 }
             }
-            if ("getServices".equals(method.getName()) && (method.getParameterTypes().length == 0) && ServiceRegistry.class.equals(method.getReturnType())) {
-                hasGetServicesMethod = true;
-            }
         }
+
         for (PropertyDetails property : classDetails.getProperties()) {
             PropertyMetaData propertyMetaData = classMetaData.property(property.getName());
             for (Method method : property.getGetters()) {
+                if (method.getAnnotation(Inject.class) == null) {
+                    assertNotAbstract(method);
+                }
                 propertyMetaData.addGetter(method);
             }
             for (Method method : property.getSetters()) {
+                assertNotAbstract(method);
                 propertyMetaData.addSetter(method);
             }
         }
+
+        PropertyMetaData servicesProperty = classMetaData.getProperty("services");
+        if (servicesProperty != null) {
+            for (Method getter : servicesProperty.getters) {
+                if (getter.getReturnType().equals(ServiceRegistry.class)) {
+                    hasGetServicesMethod = true;
+                }
+            }
+        }
+
         for (Method method : classDetails.getInstanceMethods()) {
             Class<?>[] parameterTypes = method.getParameterTypes();
+            if (!method.getDeclaringClass().isInterface()) {
+                assertNotAbstract(method);
+            }
             if (parameterTypes.length == 1) {
                 classMetaData.addCandidateSetMethod(method);
             }
@@ -327,6 +338,12 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
                     classMetaData.shouldImplementWithServiceRegistry = true;
                 }
             }
+        }
+    }
+
+    private void assertNotAbstract(Method method) {
+        if (Modifier.isAbstract(method.getModifiers())) {
+            throw new UnsupportedOperationException(String.format("Cannot have an abstract method %s.%s().", method.getDeclaringClass().getSimpleName(), method.getName()));
         }
     }
 

@@ -337,26 +337,36 @@ public class AsmBackedClassGeneratorTest {
         } catch (InvocationTargetException e) {
             assertThat(e.getCause(), sameInstance(UnconstructibleBean.failure));
         }
+    }
 
-        try {
-            newInstance(AbstractBean.class);
-            fail();
-        } catch (ClassGenerationException e) {
-            assertThat(e.getMessage(), equalTo("Cannot create a proxy class for abstract class 'AbstractBean'."));
-        }
-
+    @Test
+    public void cannotCreateInstanceOfPrivateClass() throws Exception {
         try {
             newInstance(PrivateBean.class);
             fail();
         } catch (ClassGenerationException e) {
-            assertThat(e.getMessage(), equalTo("Cannot create a proxy class for private class 'PrivateBean'."));
+            assertThat(e.getMessage(), equalTo("Cannot create a decorated class for private class 'PrivateBean'."));
         }
+    }
 
+    @Test
+    public void cannotCreateInstanceOfFinalClass() throws Exception {
         try {
             newInstance(FinalBean.class);
             fail();
         } catch (ClassGenerationException e) {
-            assertThat(e.getMessage(), equalTo("Cannot create a proxy class for final class 'FinalBean'."));
+            assertThat(e.getMessage(), equalTo("Cannot create a decorated class for final class 'FinalBean'."));
+        }
+    }
+
+    @Test
+    public void cannotCreateInstanceOfClassWithUnknownAbstractMethods() throws Exception {
+        try {
+            newInstance(AbstractBean.class);
+            fail();
+        } catch (ClassGenerationException e) {
+            assertThat(e.getMessage(), equalTo("Could not generate a decorated class for class " + AbstractBean.class.getName() + "."));
+            assertThat(e.getCause().getMessage(), equalTo("Cannot have an abstract method AbstractBean.implementMe()."));
         }
     }
 
